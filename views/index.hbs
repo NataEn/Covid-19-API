@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/styles.css" />
+    <script src="/scripts/Chart.min.js"></script>
     <script defer src="/js/app.js"></script>
     <title>COVID 19 API</title>
-  </head>
-  <body>
+</head>
+
+<body>
+    {{>header}}
     <h1>from a static file</h1>
-  </body>
+    {{>chart}}
+    <p>{{name}}</p>
+</body>
+
 </html>
