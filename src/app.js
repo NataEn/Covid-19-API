@@ -1,7 +1,9 @@
 require("dotenv").config();
 const path = require("path");
 const express = require("express");
+const cors = require("cors");
 const hbs = require("hbs");
+const { getCountries } = require("../utils/externalAPICalls");
 
 const app = express();
 
@@ -22,13 +24,23 @@ app.use(
   "/scripts",
   express.static(path.join(__dirname, "../node_modules/chart.js/dist"))
 );
+//setting cors temporary
+app.use(cors());
 
 //routing
-app.get("/", (req, res) => {
-  res.render("index", { name: "1234" });
+app.get("/", async (req, res, next) => {
+  const countries = await getCountries("asia");
+  res.render("index", {
+    countries: countries,
+    name: "123",
+    continents: ["Africa", "Asia", "Europe", "America", "World"],
+  });
 });
-app.get("/api", (req, res) => {
-  res.send("Hello World! from api");
+app.get("/api", async (req, res, next) => {
+  const { continent } = req.query;
+  const countries = await getCountries(continent);
+  console.log(countries);
+  res.json({ data: countries });
 });
 
 app.listen(port, () => {

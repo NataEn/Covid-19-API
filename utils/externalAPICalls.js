@@ -11,27 +11,35 @@ const getCountries = (continent) => {
           flagUrl: `https://www.countryflags.io/${item.cca2}/flat/32.png`,
         };
       });
-      console.log(countries);
       return countries;
     })
     .catch((err) => console.error(err));
   return countries;
 };
-const getCountriesInfo = (country) => {
-  const countryInfo = axios
+const getGlobalInfo = () => {
+  const globalInfo = axios
     .get(`https://corona-api.com/countries`)
-    .then((rawlist) => {
-      const countryInfo = rawlist.data.data.filter(
-        (item) => item.name === country
-      );
-      console.log(countryInfo);
-      return countryInfo;
+    .then((response) => {
+      console.log(response.data);
+      return "data";
     })
-    .catch((err) => console.error(err));
-  return countryInfo;
+    .catch((err) => console.err(err));
+  return globalInfo;
 };
-getCountriesInfo("Afghanistan");
+//if you have global info than its an sync method,
+//if there is no global info than it an async method
+const getCountriesInfo = (country, ...globalInfo) => {
+  if (!globalInfo) {
+    getGlobalInfo()
+      .then((response) => response.filter((item) => item.name === country))
+      .catch((err) => console.error(err));
+  } else {
+    return globalInfo.filter((item) => item.name === country);
+  }
+};
 
 module.exports = {
+  getCountriesInfo,
+  getGlobalInfo,
   getCountries,
 };

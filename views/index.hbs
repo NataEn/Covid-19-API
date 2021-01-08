@@ -5,8 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/styles.css" />
-    <script src="/scripts/Chart.min.js"></script>
-    <script defer src="/js/app.js"></script>
+
     <title>COVID 19 API</title>
 </head>
 
@@ -14,7 +13,17 @@
     {{>header}}
     <h1>from a static file</h1>
     {{>chart}}
+    {{#each continents}}
+    <button>{{this}}</button>
+    {{/each}}
+    {{#each countries}}
+    {{>button}}
+    {{/each}}
+
     <p>{{name}}</p>
+    <script type="text/javascript" src="/scripts/Chart.min.js"></script>
+    <script type="text/javascript" src="/js/apiCalls.js"></script>
+    <script type="text/javascript" src="/js/app.js"></script>
 </body>
 
 </html>
