@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-const Button = ({ text, onClick, flagUrl }) => {
+import React from "react";
+const Button = ({ text, onClick, flagUrl = null }) => {
   return (
-    <div onClick={onClick}>
+    <button onClick={onClick}>
+      {flagUrl && <img src={flagUrl} alt={`flag of ${text}`} />}
       {text}
-      <img src={flagUrl} alt={`flag of ${text}`} />
-    </div>
+    </button>
   );
 };
 export default Button;
