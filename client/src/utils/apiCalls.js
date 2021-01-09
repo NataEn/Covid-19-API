@@ -1,4 +1,3 @@
-const continents = ["Africa", "Asia", "Europe", "America", "World"];
 const getCountriesInContinent = (continent) => {
   const countries = fetch(`http://localhost:5000/api?continent=${continent}`)
     .then((response) => {
@@ -17,23 +16,37 @@ const getGlobalInfo = () => {
     .catch((err) => console.error(err));
   return globalInfo;
 };
-const getCountyInfo = async (country) => {
-  const info = await getGlobalInfo();
-  //   const countries = await getCountries(continent);
-  console.log(info.filter((item) => item.name === country));
-  return info.filter((item) => item.name === country);
+const getCountyInfo = async (country, globalInfo) => {
+  return globalInfo.filter((item) => item.name === country);
 };
 //if you have global info than its an sync method,
 //if there is no global info than it an async method
-const getCountriesInfo = async (continent) => {
-  const info = await getGlobalInfo();
-  return null;
+const getCountriesInfo = (countries, globalInfo) => {
+  console.log("in getCountriesData", countries);
+  // const countriesMap = new Map(
+  //   countries.map((country) => [country.name, country.flagUrl])
+  // );
+  const countriesInfoMap = globalInfo.map((country) => {
+    const name = country.name;
+    const data = country.latest_data;
+    const item = { [name]: data };
+    console.log({ [name]: data });
+    return item;
+  });
+  const countriesCovidData = new Map();
+  // countries.map((country) =>
+  //   countriesCovidData.set(
+  //     country.name,
+  //     countriesInfoMap.get(country.name).latest_data
+  //   )
+  // );
+
+  return countriesInfoMap;
 };
-// console.log(getCountriesInfo("asia", "Afganistan"));
-// console.log(getCountries("asia"));
-// console.log(getCountyInfo("Afghanistan"));
-console.log(getCountriesInContinent("asia"));
+
 module.exports = {
   getCountyInfo,
+  getGlobalInfo,
   getCountriesInContinent,
+  getCountriesInfo,
 };

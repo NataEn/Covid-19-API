@@ -1,7 +1,8 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
 
-const COVIDChart = () => {
+const COVIDChart = (info) => {
+  console.log("from chart", info);
   const data = {
     labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
     datasets: [
