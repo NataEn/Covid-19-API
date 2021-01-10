@@ -4,10 +4,10 @@ import Button from "./components/Button";
 import Spinner from "./components/Spinner";
 import { useEffect, useState } from "react";
 import {
-  getCountriesInContinent,
-  getCountyInfo,
-  getGlobalInfo,
-  getCountriesInfo,
+  fetchCountriesInContinent,
+  getCountryInfo,
+  fetchGlobalInfo,
+  getContinentInfo,
 } from "./utils/apiCalls";
 
 const App = () => {
@@ -17,42 +17,55 @@ const App = () => {
   const [countries, setCountries] = useState(null);
   const [countryData, setCountryData] = useState(null);
   const [COVIDParam, setCOVIDParam] = useState("Confirmed");
-  const continents = ["Africa", "Asia", "Europe", "America", "World"];
+  const [chartData, setChartData] = useState(null);
+
+  const continents = ["Africa", "Asia", "Europe", "Americas", "World"];
   const COVIDParams = ["Confirmed", "Deaths", "Recovered", "Critical"];
 
   useEffect(() => {
-    getCountriesInContinent(continent)
+    const searchContinent = continent === "World" ? "" : continent;
+    fetchCountriesInContinent(searchContinent)
       .then((countries) => {
-        console.log("countries", countries.data);
         setCountries(countries.data);
+        return countries.data;
       })
-      .then(() => {
-        if (!globalInfo) {
-          const res = getGlobalInfo().then((response) => {
-            console.log("global info", response);
-            setGlobalInfo(response);
-            return response;
-          });
-          return res;
-        }
-      })
-      .then((response) => {
-        getContinentData("asia", response);
+      .then((countries) => {
+        const info = getContinentInfo(countries, globalInfo);
+        setContinentData(info);
       });
 
     return () => {};
-  }, [continent]);
-  const setCOVIDParamData = (param) => {
-    console.log(COVIDParam);
-    setCOVIDParam(param);
-    //update chartData on getting the param data
+  }, [continent, globalInfo]);
+  useEffect(() => {
+    const data = getChartData();
+    setChartData(data);
+
+    return () => {};
+  }, [continent, COVIDParam]);
+
+  useEffect(() => {
+    if (!globalInfo) {
+      fetchGlobalInfo().then((response) => {
+        console.log("global info", response);
+        setGlobalInfo(response);
+        return response;
+      });
+    }
+    return () => {};
+  }, []);
+
+  const getChartData = () => {
+    let dataSource = continent === "World" ? continentData : globalInfo;
+
+    if (continentData || globalInfo) {
+      const labels = [...dataSource.keys()];
+      const data = [...dataSource.values()].map(
+        (value) => value[COVIDParam.toLowerCase()]
+      );
+      return { data, labels };
+    }
   };
-  const getContinentData = (continent, globalInfo) => {
-    console.log("getContinentalData", continent, "globalInfo", globalInfo);
-    const info = getCountriesInfo(countries, globalInfo);
-    console.log("info", info);
-    setContinentData(info);
-  };
+
   const getCountryData = (country) => {
     console.log(country);
     const data = continentData.get(country);
@@ -67,23 +80,27 @@ const App = () => {
       {!(continentData && COVIDParam) ? (
         <Spinner />
       ) : (
-        <Chart
-          // info={continentData}  //if the info an object
-          covidParam={COVIDParam.toLowerCase()}
-          data2={continentData}
-        />
+        <Chart data={chartData} covidParam={COVIDParam} data2={continentData} />
       )}
       {COVIDParams &&
         COVIDParams.map((param) => (
-          <Button key={param} text={param} onClick={setCOVIDParamData} />
+          <Button
+            key={param}
+            text={param}
+            onClick={() => {
+              setCOVIDParam(param);
+            }}
+          />
         ))}
       <br />
       {continents &&
-        continents.map((continent) => (
+        continents.map((newContinent) => (
           <Button
-            key={continent}
-            text={continent}
-            onClick={(continent) => setContinent(continent)}
+            key={newContinent}
+            text={newContinent}
+            onClick={() => {
+              setContinent(newContinent);
+            }}
           />
         ))}
       <br />
@@ -94,11 +111,12 @@ const App = () => {
           <Button
             key={country.name}
             text={country.name}
-            onClick={() => getCountryData(country.name)}
+            onClick={() => getCountryData(continentData, country.name)}
             flagUrl={country.flagUrl}
           />
         ))
       )}
+      {countryData && <div>{JSON.stringify(countryData)}</div>}
     </div>
   );
 };

@@ -38,8 +38,13 @@ app.get("/", async (req, res, next) => {
 });
 app.get("/api", async (req, res, next) => {
   const { continent } = req.query;
-  const countries = await getCountries(continent);
-  console.log(countries);
+  let countries;
+  if (continent) {
+    countries = await getCountries(continent);
+    console.log(countries);
+  } else {
+    countries = await getCountries();
+  }
   res.json({ data: countries });
 });
 

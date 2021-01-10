@@ -11,7 +11,9 @@ const COVIDChart = ({ data2, covidParam }) => {
   //   // const chartData2 = mapValues.map((item) => item[covidParam]);
   // }, []);
   const labels2 = [...data2.keys()];
-  const chartData = [...data2.values()].map((value) => value[covidParam]);
+  const chartData = [...data2.values()].map(
+    (value) => value[covidParam.toLowerCase()]
+  );
 
   console.log("from chart", data2, covidParam, chartData, labels2);
 
@@ -19,7 +21,7 @@ const COVIDChart = ({ data2, covidParam }) => {
     labels: labels2,
     datasets: [
       {
-        label: "# of Votes",
+        label: covidParam,
         data: chartData,
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)",

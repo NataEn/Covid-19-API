@@ -1,8 +1,10 @@
 const axios = require("axios");
 
-const getCountries = (continent) => {
+const getCountries = (continent = null) => {
+  const fields = continent ? `region/${continent}` : "";
+
   const countries = axios
-    .get(`https://restcountries.herokuapp.com/api/v1/region/${continent}`)
+    .get(`https://restcountries.herokuapp.com/api/v1/${fields}`)
     .then((rawlist) => {
       const countries = rawlist.data.map((item) => {
         return {

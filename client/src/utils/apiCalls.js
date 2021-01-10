@@ -1,32 +1,27 @@
-const getCountriesInContinent = (continent) => {
-  const countries = fetch(`http://localhost:5000/api?continent=${continent}`)
+const fetchCountriesInContinent = (continent = null) => {
+  const fields = continent ? `?continent=${continent}` : "";
+  const countries = fetch(`http://localhost:5000/api${fields}`)
     .then((response) => {
       const countries = response.json();
-      console.log(countries);
       return countries;
     })
     .catch((err) => console.error(err));
   return countries;
 };
 
-const getGlobalInfo = () => {
+const fetchGlobalInfo = () => {
   const globalInfo = fetch(`https://corona-api.com/countries`)
     .then((response) => response.json())
     .then((response) => response.data)
     .catch((err) => console.error(err));
   return globalInfo;
 };
-const getCountyInfo = async (country, globalInfo) => {
-  return globalInfo.filter((item) => item.name === country);
+const getCountryInfo = (continentInfo, country) => {
+  return continentInfo.filter((item) => item.name === country);
 };
 //if you have global info than its an sync method,
 //if there is no global info than it an async method
-const getCountriesInfo = (countries, globalInfo) => {
-  console.log("in getCountriesData", countries, globalInfo);
-  // const countriesMap = new Map(
-  //   countries.map((country) => [country.name, country.flagUrl])
-  // );
-
+const getContinentInfo = (countries, globalInfo) => {
   // const countriesInfo = globalInfo.map((country) => {
   //   const name = country.name;
   //   const data = country.latest_data;
@@ -34,17 +29,22 @@ const getCountriesInfo = (countries, globalInfo) => {
   //   console.log({ [name]: data });
   //   return item;
   // });
-  const countriesInfoMap = new Map();
-  globalInfo.map((country) => {
-    countriesInfoMap.set(country.name, country.latest_data);
-  });
-
-  return countriesInfoMap;
+  const continentInfoMap = new Map();
+  if (globalInfo) {
+    for (const continentCountry of countries) {
+      globalInfo.forEach((country) => {
+        if (country.name === continentCountry.name) {
+          return continentInfoMap.set(country.name, country.latest_data);
+        }
+      });
+    }
+  }
+  return continentInfoMap;
 };
 
 module.exports = {
-  getCountyInfo,
-  getGlobalInfo,
-  getCountriesInContinent,
-  getCountriesInfo,
+  getCountryInfo,
+  fetchGlobalInfo,
+  fetchCountriesInContinent,
+  getContinentInfo,
 };
