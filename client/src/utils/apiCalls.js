@@ -22,24 +22,22 @@ const getCountyInfo = async (country, globalInfo) => {
 //if you have global info than its an sync method,
 //if there is no global info than it an async method
 const getCountriesInfo = (countries, globalInfo) => {
-  console.log("in getCountriesData", countries);
+  console.log("in getCountriesData", countries, globalInfo);
   // const countriesMap = new Map(
   //   countries.map((country) => [country.name, country.flagUrl])
   // );
-  const countriesInfoMap = globalInfo.map((country) => {
-    const name = country.name;
-    const data = country.latest_data;
-    const item = { [name]: data };
-    console.log({ [name]: data });
-    return item;
+
+  // const countriesInfo = globalInfo.map((country) => {
+  //   const name = country.name;
+  //   const data = country.latest_data;
+  //   const item = { [name]: data };
+  //   console.log({ [name]: data });
+  //   return item;
+  // });
+  const countriesInfoMap = new Map();
+  globalInfo.map((country) => {
+    countriesInfoMap.set(country.name, country.latest_data);
   });
-  const countriesCovidData = new Map();
-  // countries.map((country) =>
-  //   countriesCovidData.set(
-  //     country.name,
-  //     countriesInfoMap.get(country.name).latest_data
-  //   )
-  // );
 
   return countriesInfoMap;
 };

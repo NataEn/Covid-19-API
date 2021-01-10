@@ -64,7 +64,15 @@ const App = () => {
       <header className="App-header">
         <h1>COVID 19 WORLD Data</h1>
       </header>
-      {!continentData ? <Spinner /> : <Chart info={continentData} />}
+      {!(continentData && COVIDParam) ? (
+        <Spinner />
+      ) : (
+        <Chart
+          // info={continentData}  //if the info an object
+          covidParam={COVIDParam.toLowerCase()}
+          data2={continentData}
+        />
+      )}
       {COVIDParams &&
         COVIDParams.map((param) => (
           <Button key={param} text={param} onClick={setCOVIDParamData} />

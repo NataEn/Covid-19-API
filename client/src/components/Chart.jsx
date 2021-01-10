@@ -1,14 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 
-const COVIDChart = (info) => {
-  console.log("from chart", info);
+const COVIDChart = ({ data2, covidParam }) => {
+  // const [labels2, setLabels2] = useState(null);
+  // const [chartData, setChartData] = useState(null);
+  // console.log(typeof data2)
+  // useEffect(() => {
+  //   // setLabels2(data2.keys());
+  //   // const mapValues = data2.values();
+  //   // const chartData2 = mapValues.map((item) => item[covidParam]);
+  // }, []);
+  const labels2 = [...data2.keys()];
+  const chartData = [...data2.values()].map((value) => value[covidParam]);
+
+  console.log("from chart", data2, covidParam, chartData, labels2);
+
   const data = {
-    labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+    labels: labels2,
     datasets: [
       {
         label: "# of Votes",
-        data: [12, 19, 3, 5, 2, 3],
+        data: chartData,
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)",
           "rgba(54, 162, 235, 0.2)",
@@ -29,9 +41,42 @@ const COVIDChart = (info) => {
       },
     ],
   };
+  const options = {
+    scales: {
+      xAxes: [
+        {
+          display: true,
+          ticks: {
+            beginAtZero: true,
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "X Axis",
+          },
+        },
+      ],
+      yAxes: [
+        {
+          type: "logarithmic",
+          ticks: {
+            min: 1000,
+            max: 10000000,
+            callback: function (value, index, values) {
+              return value;
+            },
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "Y Axis",
+          },
+        },
+      ],
+    },
+  };
+
   return (
     <div className="COVID-chart-container">
-      <Line data={data} />
+      <Line data={data} options={options} />
     </div>
   );
 };
