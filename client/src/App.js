@@ -2,6 +2,7 @@ import "./App.css";
 import Chart from "./components/Chart";
 import Button from "./components/Button";
 import Spinner from "./components/Spinner";
+import DataChart from "./components/DataChart";
 import { useEffect, useState } from "react";
 import {
   fetchCountriesInContinent,
@@ -10,78 +11,104 @@ import {
   getContinentInfo,
 } from "./utils/apiCalls";
 
+const continents = ["Africa", "Asia", "Europe", "Americas", "World"];
+const COVIDParams = ["Confirmed", "Deaths", "Recovered", "Critical"];
+
 const App = () => {
+  const [data, setData] = useState({});
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [countriesLoaded, setCountriesLoaded] = useState(false);
+  const [chartDataLoaded, setchartDataLoaded] = useState(false);
+
   const [globalInfo, setGlobalInfo] = useState(null);
-  const [continent, setContinent] = useState("asia");
+  const [continent, setContinent] = useState("World");
   const [continentData, setContinentData] = useState(null);
   const [countries, setCountries] = useState(null);
   const [countryData, setCountryData] = useState(null);
   const [COVIDParam, setCOVIDParam] = useState("Confirmed");
   const [chartData, setChartData] = useState(null);
+  const [chartLoading, setChartLoading] = useState(true);
+  const [buttonsLoading, setButtonsLoading] = useState(true);
 
-  const continents = ["Africa", "Asia", "Europe", "Americas", "World"];
-  const COVIDParams = ["Confirmed", "Deaths", "Recovered", "Critical"];
-
-  useEffect(() => {
-    const searchContinent = continent === "World" ? "" : continent;
-    fetchCountriesInContinent(searchContinent)
-      .then((countries) => {
-        setCountries(countries.data);
-        return countries.data;
-      })
-      .then((countries) => {
-        const info = getContinentInfo(countries, globalInfo);
-        setContinentData(info);
-      });
-
-    return () => {};
-  }, [continent, globalInfo]);
-  useEffect(() => {
-    const data = getChartData();
-    setChartData(data);
-
-    return () => {};
-  }, [continent, COVIDParam]);
+  // useEffect(() => {
+  //   fetchGlobalInfo().then((resp) => {
+  //     setDataLoaded(true);
+  //     setData({
+  //       COVIDData: [...resp.values()],
+  //       labels: [...resp.keys()],
+  //     });
+  //   });
+  // }, []);
 
   useEffect(() => {
-    if (!globalInfo) {
-      fetchGlobalInfo().then((response) => {
-        console.log("global info", response);
-        setGlobalInfo(response);
-        return response;
-      });
-    }
-    return () => {};
+    // fetchGlobalInfo()
+    //   .then((response) => {
+    //     setGlobalInfo(response);
+    //     return response;
+    //   })
+    //   .then(() => fetchCountriesInContinent("World"))
+    //   .then((countries) => {
+    //     console.log(countries.data);
+    //     setCountries(countries.data);
+    //     setCountriesLoaded(true);
+    //     setCOVIDParam("Confirmed");
+    //     setContinent("world");
+    //     return countries.data;
+    //   });
   }, []);
 
-  const getChartData = () => {
-    let dataSource = continent === "World" ? continentData : globalInfo;
+  useEffect(() => {
+    // function getChartData() {
+    //   if (continentData) {
+    //     const labels = [...continentData.keys()];
+    //     const COVIDData = [...continentData.values()].map(
+    //       (value) => value[COVIDParam.toLowerCase()]
+    //     );
+    //     return { COVIDData, labels };
+    //   }
+    // }
+    // const searchContinent = continent === "World" ? "" : continent;
+    // fetchCountriesInContinent(searchContinent).then((countries) => {
+    //   // setDataLoaded(true)
+    //   setCountries(countries.data);
+    //   return countries.data;
+    // });
+    // const data = getChartData();
+    // setChartData(data);
+  }, [continent, COVIDParam, continentData]);
 
-    if (continentData || globalInfo) {
-      const labels = [...dataSource.keys()];
-      const data = [...dataSource.values()].map(
-        (value) => value[COVIDParam.toLowerCase()]
-      );
-      return { data, labels };
-    }
-  };
-
-  const getCountryData = (country) => {
-    console.log(country);
-    const data = continentData.get(country);
-    setCountryData(data);
-  };
+  // const getCountryData = (countryName) => {
+  //   console.log(countryName);
+  //   const data = continentData.get(countryName);
+  //   setCountryData(data);
+  // };
 
   return (
     <div className="App">
       <header className="App-header">
-        <h1>COVID 19 WORLD Data</h1>
+        <h1>COVID 19 {continent} Data</h1>
       </header>
-      {!(continentData && COVIDParam) ? (
+      <DataChart />
+      {/* {dataLoaded ? (
+        <Chart
+          chartData={data}
+          covidParam={COVIDParam}
+          // data2={continentData}
+        />
+      ) : (
+        "LOADING DATA"
+      )} */}
+
+      {/* {chartDataLoaded ? (
         <Spinner />
       ) : (
-        <Chart data={chartData} covidParam={COVIDParam} data2={continentData} />
-      )}
+        <Chart
+          chartData={chartData}
+          covidParam={COVIDParam}
+          // data2={continentData}
+        />
+      )} */}
+
       {COVIDParams &&
         COVIDParams.map((param) => (
           <Button
@@ -89,6 +116,7 @@ const App = () => {
             text={param}
             onClick={() => {
               setCOVIDParam(param);
+              setchartDataLoaded(false);
             }}
           />
         ))}
@@ -100,23 +128,25 @@ const App = () => {
             text={newContinent}
             onClick={() => {
               setContinent(newContinent);
+              setchartDataLoaded(false);
             }}
           />
         ))}
       <br />
-      {!countries ? (
+      {/* {countriesLoaded ? (
         <Spinner />
       ) : (
         countries.map((country) => (
           <Button
             key={country.name}
             text={country.name}
-            onClick={() => getCountryData(continentData, country.name)}
+            onClick={() => {
+              // getCountryData(country.name);
+            }}
             flagUrl={country.flagUrl}
           />
         ))
-      )}
-      {countryData && <div>{JSON.stringify(countryData)}</div>}
+      )} */}
     </div>
   );
 };
