@@ -1,12 +1,12 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
 
-const COVIDChart = ({ covidDataSet, covidLabels }) => {
+const COVIDChart = ({ covidDataSet, covidLabels, param }) => {
   const data = {
     labels: covidLabels,
     datasets: [
       {
-        label: "covidParam",
+        label: `${param}`,
         data: covidDataSet,
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)",

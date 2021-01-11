@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-const CountriesButtons = ({ countries }) => {
-  const [item, setItem] = useState(1);
-  useEffect(() => {
-    console.log("countries in buttons", countries);
-  }, []);
+const CountriesButtons = ({ countries, setSelectedCountry }) => {
   return (
     <div>
       {countries.map((newContinent) => (
@@ -11,6 +7,7 @@ const CountriesButtons = ({ countries }) => {
           key={newContinent.name}
           onClick={() => {
             console.log("selected ", newContinent.name);
+            setSelectedCountry(newContinent.name);
           }}
         >
           {newContinent.name}

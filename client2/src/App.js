@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import CountriesButtons from "./components/CountriesButtons";
 import Chart from "./components/Chart";
+import Spinner from "./components/Spinner";
+import CountryData from "./components/CountryData";
 import {
   fetchCountriesInContinent,
   getCountryInfo,
@@ -19,25 +21,27 @@ function App() {
   const [countries, setCountries] = useState(null);
   const [continent, setContinent] = useState(null);
   const [globalInfo, setGlbalInfo] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedCountryData, setSelectedCountryData] = useState(null);
 
   useEffect(() => {
     fetchCountriesInContinent()
       .then((countries) => {
         console.log(countries.data);
-        setCountries(countries.data);
-        setWorldCountries(countries.data);
+        setCountries([...countries.data]);
+        setWorldCountries([...countries.data]);
         setCountriesLoaded(true);
         return countries.data;
       })
       .then((countries) =>
         fetchGlobalInfo().then((response) => {
           const info = getContinentInfo(countries, response);
-          setGlbalInfo(info);
+          setGlbalInfo(new Map(info));
           return info;
         })
       )
       .then((covidData) => {
-        setCovidData(covidData);
+        setCovidData(new Map(covidData));
         setCovidDataLoaded(true);
       });
   }, []);
@@ -48,7 +52,7 @@ function App() {
         .then((countries) => {
           const continentCountries = countries.data;
           console.log("changed", continentCountries);
-          setCountries(continentCountries);
+          setCountries([...continentCountries]);
           setCountriesLoaded(true);
           return continentCountries;
         })
@@ -65,18 +69,27 @@ function App() {
           return continentInfoMap;
         })
         .then((covidData) => {
-          setCovidData(covidData);
+          setCovidData(new Map(covidData));
           setCovidDataLoaded(true);
         });
     }
   }, [continent, globalInfo]);
 
+  useEffect(() => {
+    if (globalInfo) {
+      setSelectedCountryData(
+        Object.assign({}, globalInfo.get(selectedCountry))
+      );
+    }
+  }, [selectedCountry, globalInfo]);
+
   return (
     <div className="App">
+      <h1>COVID Data In {continent ? continent : "World"}</h1>
       {covidDataLoaded && countriesLoaded ? (
         <Chart covidData={covidData} setCovidDataLoaded={setCovidDataLoaded} />
       ) : (
-        "Loading"
+        <Spinner />
       )}
       <br />
 
@@ -100,7 +113,17 @@ function App() {
       ))}
       <br />
 
-      {countriesLoaded ? <CountriesButtons countries={countries} /> : "Loading"}
+      {countriesLoaded ? (
+        <CountriesButtons
+          countries={countries}
+          setSelectedCountry={setSelectedCountry}
+        />
+      ) : (
+        <Spinner />
+      )}
+      {selectedCountry && (
+        <CountryData data={selectedCountryData} country={selectedCountry} />
+      )}
     </div>
   );
 }

@@ -11,18 +11,18 @@ const Chart = ({ covidData, setCovidDataLoaded }) => {
     console.log("covidData in chart", covidData);
     function calculateChartData() {
       const labels = [...covidData.keys()];
-      setLabels(labels);
+      setLabels([...labels]);
       const COVIDData = [...covidData.values()].map((value) =>
         value ? value[COVIDParam.toLowerCase()] : 0
       );
-      setData(COVIDData);
+      setData([...COVIDData]);
     }
     calculateChartData();
   }, [COVIDParam]);
   return (
     <div>
-      my content
-      <COVIDChart covidDataSet={data} covidLabels={labels} />
+      <h4>{COVIDParam}:</h4>
+      <COVIDChart covidDataSet={data} covidLabels={labels} param={COVIDParam} />
       {COVIDParams.map((param) => (
         <button
           key={param}

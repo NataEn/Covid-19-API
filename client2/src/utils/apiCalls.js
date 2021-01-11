@@ -35,7 +35,14 @@ const getContinentInfo = (countries, globalInfo) => {
     for (const continentCountry of countries) {
       globalInfo.forEach((country) => {
         if (country.name === continentCountry.name) {
-          return continentInfoMap.set(country.name, country.latest_data);
+          console.log(country);
+          return continentInfoMap.set(country.name, {
+            ...country.latest_data,
+            ...{
+              today_confirmed: country.today.confirmed,
+              today_deaths: country.today.deaths,
+            },
+          });
         }
       });
     }
