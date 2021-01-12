@@ -1,6 +1,8 @@
 const fetchCountriesInContinent = (continent = null) => {
   const fields = continent ? `?continent=${continent}` : "";
-  const countries = fetch(`http://localhost:5000/api${fields}`)
+  const countries = fetch(
+    `${process.env.NODE_ENV_SERVER_API_ROOT_URL}${fields}`
+  )
     .then((response) => {
       const countries = response.json();
       return countries;

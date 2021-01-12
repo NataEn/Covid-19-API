@@ -1,154 +1,130 @@
-import "./App.css";
-import Chart from "./components/Chart";
-import Button from "./components/Button";
-import Spinner from "./components/Spinner";
-import DataChart from "./components/DataChart";
 import { useEffect, useState } from "react";
+import CountriesButtons from "./components/CountriesButtons";
+import Chart from "./components/Chart";
+import Spinner from "./components/Spinner";
+import CountryData from "./components/CountryData";
 import {
   fetchCountriesInContinent,
   getCountryInfo,
   fetchGlobalInfo,
   getContinentInfo,
 } from "./utils/apiCalls";
-
+import "./App.css";
 const continents = ["Africa", "Asia", "Europe", "Americas", "World"];
-const COVIDParams = ["Confirmed", "Deaths", "Recovered", "Critical"];
 
-const App = () => {
-  const [data, setData] = useState({});
-  const [dataLoaded, setDataLoaded] = useState(false);
+function App() {
   const [countriesLoaded, setCountriesLoaded] = useState(false);
-  const [chartDataLoaded, setchartDataLoaded] = useState(false);
+  const [covidDataLoaded, setCovidDataLoaded] = useState(false);
+  const [covidData, setCovidData] = useState(null);
 
-  const [globalInfo, setGlobalInfo] = useState(null);
-  const [continent, setContinent] = useState("World");
-  const [continentData, setContinentData] = useState(null);
+  const [worldCountries, setWorldCountries] = useState(null);
   const [countries, setCountries] = useState(null);
-  const [countryData, setCountryData] = useState(null);
-  const [COVIDParam, setCOVIDParam] = useState("Confirmed");
-  const [chartData, setChartData] = useState(null);
-  const [chartLoading, setChartLoading] = useState(true);
-  const [buttonsLoading, setButtonsLoading] = useState(true);
-
-  // useEffect(() => {
-  //   fetchGlobalInfo().then((resp) => {
-  //     setDataLoaded(true);
-  //     setData({
-  //       COVIDData: [...resp.values()],
-  //       labels: [...resp.keys()],
-  //     });
-  //   });
-  // }, []);
+  const [continent, setContinent] = useState(null);
+  const [globalInfo, setGlbalInfo] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedCountryData, setSelectedCountryData] = useState(null);
 
   useEffect(() => {
-    // fetchGlobalInfo()
-    //   .then((response) => {
-    //     setGlobalInfo(response);
-    //     return response;
-    //   })
-    //   .then(() => fetchCountriesInContinent("World"))
-    //   .then((countries) => {
-    //     console.log(countries.data);
-    //     setCountries(countries.data);
-    //     setCountriesLoaded(true);
-    //     setCOVIDParam("Confirmed");
-    //     setContinent("world");
-    //     return countries.data;
-    //   });
+    fetchCountriesInContinent()
+      .then((countries) => {
+        console.log(countries.data);
+        setCountries([...countries.data]);
+        setWorldCountries([...countries.data]);
+        setCountriesLoaded(true);
+        return countries.data;
+      })
+      .then((countries) =>
+        fetchGlobalInfo().then((response) => {
+          const info = getContinentInfo(countries, response);
+          setGlbalInfo(new Map(info));
+          return info;
+        })
+      )
+      .then((covidData) => {
+        setCovidData(new Map(covidData));
+        setCovidDataLoaded(true);
+      });
   }, []);
 
   useEffect(() => {
-    // function getChartData() {
-    //   if (continentData) {
-    //     const labels = [...continentData.keys()];
-    //     const COVIDData = [...continentData.values()].map(
-    //       (value) => value[COVIDParam.toLowerCase()]
-    //     );
-    //     return { COVIDData, labels };
-    //   }
-    // }
-    // const searchContinent = continent === "World" ? "" : continent;
-    // fetchCountriesInContinent(searchContinent).then((countries) => {
-    //   // setDataLoaded(true)
-    //   setCountries(countries.data);
-    //   return countries.data;
-    // });
-    // const data = getChartData();
-    // setChartData(data);
-  }, [continent, COVIDParam, continentData]);
+    if ((!covidDataLoaded || !countriesLoaded) && globalInfo) {
+      fetchCountriesInContinent(continent)
+        .then((countries) => {
+          const continentCountries = countries.data;
+          console.log("changed", continentCountries);
+          setCountries([...continentCountries]);
+          setCountriesLoaded(true);
+          return continentCountries;
+        })
+        .then((continentCountries) => {
+          const continentInfoMap = new Map();
+          if (globalInfo) {
+            for (const continentCountry of continentCountries) {
+              continentInfoMap.set(
+                continentCountry.name,
+                globalInfo.get(continentCountry.name)
+              );
+            }
+          }
+          return continentInfoMap;
+        })
+        .then((covidData) => {
+          setCovidData(new Map(covidData));
+          setCovidDataLoaded(true);
+        });
+    }
+  }, [continent, globalInfo]);
 
-  // const getCountryData = (countryName) => {
-  //   console.log(countryName);
-  //   const data = continentData.get(countryName);
-  //   setCountryData(data);
-  // };
+  useEffect(() => {
+    if (globalInfo) {
+      setSelectedCountryData(
+        Object.assign({}, globalInfo.get(selectedCountry))
+      );
+    }
+  }, [selectedCountry, globalInfo]);
 
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>COVID 19 {continent} Data</h1>
-      </header>
-      <DataChart />
-      {/* {dataLoaded ? (
-        <Chart
-          chartData={data}
-          covidParam={COVIDParam}
-          // data2={continentData}
-        />
+      <h1>COVID Data In {continent ? continent : "World"}</h1>
+      {covidDataLoaded && countriesLoaded ? (
+        <Chart covidData={covidData} setCovidDataLoaded={setCovidDataLoaded} />
       ) : (
-        "LOADING DATA"
-      )} */}
-
-      {/* {chartDataLoaded ? (
         <Spinner />
-      ) : (
-        <Chart
-          chartData={chartData}
-          covidParam={COVIDParam}
-          // data2={continentData}
-        />
-      )} */}
-
-      {COVIDParams &&
-        COVIDParams.map((param) => (
-          <Button
-            key={param}
-            text={param}
-            onClick={() => {
-              setCOVIDParam(param);
-              setchartDataLoaded(false);
-            }}
-          />
-        ))}
+      )}
       <br />
-      {continents &&
-        continents.map((newContinent) => (
-          <Button
-            key={newContinent}
-            text={newContinent}
-            onClick={() => {
+
+      {continents.map((newContinent) => (
+        <button
+          key={newContinent}
+          onClick={() => {
+            if (newContinent === "World") {
+              setContinent("");
+            } else {
               setContinent(newContinent);
-              setchartDataLoaded(false);
-            }}
-          />
-        ))}
+            }
+            console.log("setting new continent");
+
+            setCovidDataLoaded(false);
+            setCountriesLoaded(false);
+          }}
+        >
+          {newContinent}
+        </button>
+      ))}
       <br />
-      {/* {countriesLoaded ? (
-        <Spinner />
+
+      {countriesLoaded ? (
+        <CountriesButtons
+          countries={countries}
+          setSelectedCountry={setSelectedCountry}
+        />
       ) : (
-        countries.map((country) => (
-          <Button
-            key={country.name}
-            text={country.name}
-            onClick={() => {
-              // getCountryData(country.name);
-            }}
-            flagUrl={country.flagUrl}
-          />
-        ))
-      )} */}
+        <Spinner />
+      )}
+      {selectedCountry && (
+        <CountryData data={selectedCountryData} country={selectedCountry} />
+      )}
     </div>
   );
-};
-
+}
 export default App;
