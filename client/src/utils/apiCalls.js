@@ -1,6 +1,10 @@
+const COUNTRIES_ROOT_URL = "https://restcountries.herokuapp.com/api/v1/";
+const CORONA_API_ROOT_URL = "https://corona-api.com/";
+const NODE_ENV_SERVER_API_ROOT_URL = "http://localhost:5000/api";
+
 const fetchCountriesInContinent = (continent = null) => {
   const fields = continent ? `?continent=${continent}` : "";
-  const countries = fetch(`http://localhost:5000/api${fields}`)
+  const countries = fetch(`${NODE_ENV_SERVER_API_ROOT_URL}${fields}`)
     .then((response) => {
       const countries = response.json();
       return countries;
@@ -9,8 +13,18 @@ const fetchCountriesInContinent = (continent = null) => {
   return countries;
 };
 
+const corsRestricted_FetchCountriesInContinent = (continent = null) => {
+  const fields = continent ? `region/${continent}` : "";
+  const countries = fetch(`${COUNTRIES_ROOT_URL}${fields}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((err) => console.error(err));
+  return countries;
+};
+
 const fetchGlobalInfo = () => {
-  const globalInfo = fetch(`https://corona-api.com/countries`)
+  const globalInfo = fetch(`${CORONA_API_ROOT_URL}/countries`)
     .then((response) => response.json())
     .then((response) => response.data)
     .catch((err) => console.error(err));
@@ -19,16 +33,8 @@ const fetchGlobalInfo = () => {
 const getCountryInfo = (continentInfo, country) => {
   return continentInfo.filter((item) => item.name === country);
 };
-//if you have global info than its an sync method,
-//if there is no global info than it an async method
+
 const getContinentInfo = (countries, globalInfo) => {
-  // const countriesInfo = globalInfo.map((country) => {
-  //   const name = country.name;
-  //   const data = country.latest_data;
-  //   const item = { [name]: data };
-  //   console.log({ [name]: data });
-  //   return item;
-  // });
   const continentInfoMap = new Map();
 
   if (globalInfo) {

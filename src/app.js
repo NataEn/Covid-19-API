@@ -3,7 +3,7 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const hbs = require("hbs");
-const { getCountries } = require("../utils/externalAPICalls");
+const { getCountries, collectInfo } = require("../utils/externalAPICalls");
 
 const app = express();
 
@@ -24,8 +24,6 @@ app.use(
   "/scripts",
   express.static(path.join(__dirname, "../node_modules/chart.js/dist"))
 );
-//setting cors temporary
-app.use(cors());
 
 //routing
 app.get("/", async (req, res, next) => {
@@ -38,16 +36,15 @@ app.get("/", async (req, res, next) => {
 });
 app.get("/api", async (req, res, next) => {
   const { continent } = req.query;
-  let countries;
-  if (continent) {
-    countries = await getCountries(continent);
-    console.log(countries);
-  } else {
-    countries = await getCountries();
-  }
+  let countries = await getCountries(continent);
+  res.json(countries);
+});
+app.get("/api/collect", async (req, res, next) => {
+  const { continent } = req.query;
+  let countries = await collectInfo(continent);
+
   res.json({ data: countries });
 });
-
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`COVID-19 App listening at http://localhost:${port}`);
 });

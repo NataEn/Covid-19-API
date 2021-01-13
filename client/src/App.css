@@ -1,5 +1,20 @@
+* {
+  box-sizing: border-box;
+}
 .App {
   text-align: center;
+  margin: 0 auto;
+}
+.country-data-container {
+  margin: 0 auto;
+  width: 80%;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row;
+}
+.country-data {
+  border: 1px solid black;
+  padding: 0.5em;
 }
 .loader {
   font-size: 10px;

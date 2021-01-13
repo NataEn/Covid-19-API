@@ -1,22 +1,26 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import ContinentsButtons from "./components/ContinentsButtons";
 import CountriesButtons from "./components/CountriesButtons";
 import Chart from "./components/Chart";
 import Spinner from "./components/Spinner";
 import CountryData from "./components/CountryData";
+
 import {
   fetchCountriesInContinent,
   getCountryInfo,
   fetchGlobalInfo,
   getContinentInfo,
 } from "./utils/apiCalls";
+
 import "./App.css";
-const continents = ["Africa", "Asia", "Europe", "Americas", "World"];
+
+const CONTINENTS = ["Africa", "Asia", "Europe", "Americas", "World"];
 
 function App() {
   const [countriesLoaded, setCountriesLoaded] = useState(false);
   const [covidDataLoaded, setCovidDataLoaded] = useState(false);
   const [covidData, setCovidData] = useState(null);
-
   const [worldCountries, setWorldCountries] = useState(null);
   const [countries, setCountries] = useState(null);
   const [continent, setContinent] = useState(null);
@@ -29,7 +33,7 @@ function App() {
       .then((countries) => {
         console.log(countries.data);
         setCountries([...countries.data]);
-        setWorldCountries([...countries.data]);
+        // setWorldCountries([...countries.data]);
         setCountriesLoaded(true);
         return countries.data;
       })
@@ -47,27 +51,30 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const createContinentInfoMap = (continentCountries) => {
+      const continentInfoMap = new Map();
+      if (globalInfo) {
+        for (const continentCountry of continentCountries) {
+          continentInfoMap.set(
+            continentCountry.name,
+            globalInfo.get(continentCountry.name)
+          );
+        }
+      }
+      return continentInfoMap;
+    };
+
     if ((!covidDataLoaded || !countriesLoaded) && globalInfo) {
       fetchCountriesInContinent(continent)
         .then((countries) => {
           const continentCountries = countries.data;
-          console.log("changed", continentCountries);
           setCountries([...continentCountries]);
           setCountriesLoaded(true);
           return continentCountries;
         })
-        .then((continentCountries) => {
-          const continentInfoMap = new Map();
-          if (globalInfo) {
-            for (const continentCountry of continentCountries) {
-              continentInfoMap.set(
-                continentCountry.name,
-                globalInfo.get(continentCountry.name)
-              );
-            }
-          }
-          return continentInfoMap;
-        })
+        .then((continentCountries) =>
+          createContinentInfoMap(continentCountries)
+        )
         .then((covidData) => {
           setCovidData(new Map(covidData));
           setCovidDataLoaded(true);
@@ -84,47 +91,45 @@ function App() {
   }, [selectedCountry, globalInfo]);
 
   return (
-    <div className="App">
-      <h1>COVID Data In {continent ? continent : "World"}</h1>
-      {covidDataLoaded && countriesLoaded ? (
-        <Chart covidData={covidData} setCovidDataLoaded={setCovidDataLoaded} />
-      ) : (
-        <Spinner />
-      )}
-      <br />
+    <Router>
+      <div className="App">
+        <h1>COVID Data In {continent ? continent : "World"}</h1>
+        <Switch>
+          <Route path="/" exact>
+            {covidDataLoaded && countriesLoaded ? (
+              <Chart
+                covidData={covidData}
+                setCovidDataLoaded={setCovidDataLoaded}
+              />
+            ) : (
+              <Spinner />
+            )}
+            <br />
+          </Route>
+          <Route path="/:country">
+            {selectedCountry && (
+              <CountryData data={selectedCountryData} continent={continent} />
+            )}
+          </Route>
+        </Switch>
 
-      {continents.map((newContinent) => (
-        <button
-          key={newContinent}
-          onClick={() => {
-            if (newContinent === "World") {
-              setContinent("");
-            } else {
-              setContinent(newContinent);
-            }
-            console.log("setting new continent");
-
-            setCovidDataLoaded(false);
-            setCountriesLoaded(false);
-          }}
-        >
-          {newContinent}
-        </button>
-      ))}
-      <br />
-
-      {countriesLoaded ? (
-        <CountriesButtons
-          countries={countries}
-          setSelectedCountry={setSelectedCountry}
+        <ContinentsButtons
+          setCovidDataLoaded={setCovidDataLoaded}
+          setCountriesLoaded={setCountriesLoaded}
+          setContinent={setContinent}
         />
-      ) : (
-        <Spinner />
-      )}
-      {selectedCountry && (
-        <CountryData data={selectedCountryData} country={selectedCountry} />
-      )}
-    </div>
+        <br />
+
+        {countriesLoaded ? (
+          <CountriesButtons
+            countries={countries}
+            setSelectedCountry={setSelectedCountry}
+          />
+        ) : (
+          <Spinner />
+        )}
+      </div>
+    </Router>
   );
 }
 export default App;

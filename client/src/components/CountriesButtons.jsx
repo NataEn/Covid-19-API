@@ -1,18 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
+
 const CountriesButtons = ({ countries, setSelectedCountry }) => {
   return (
     <div>
-      {countries.map((newContinent) => (
-        <button
-          key={newContinent.name}
-          onClick={() => {
-            console.log("selected ", newContinent.name);
-            setSelectedCountry(newContinent.name);
-          }}
-        >
-          {newContinent.name}
-          <img alt={newContinent.name} src={newContinent.flagUrl} />
-        </button>
+      {countries.map((country) => (
+        <Link to={`/${country.name}`}>
+          <button
+            key={country.name}
+            onClick={() => {
+              console.log("selected ", country.name);
+              setSelectedCountry(country.name);
+            }}
+          >
+            {country.name}
+            <img alt={country.name} src={country.flagUrl} />
+          </button>
+        </Link>
       ))}
     </div>
   );
