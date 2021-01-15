@@ -55,7 +55,7 @@ const addCountryCovidData = (globalCovidInfo, continentInfoMap, continent) => {
 };
 const addCountryData = (countries, continentInfoMap) => {
   countries.forEach((country) => {
-    const continent = country.region;
+    const continent = country.region ? country.region : "Others";
     if (!continentInfoMap[continent]) {
       continentInfoMap[continent] = {};
     }
@@ -66,9 +66,7 @@ const addCountryData = (countries, continentInfoMap) => {
   });
 };
 const getContinentInfo = ([countries, globalCovidInfo]) => {
-  //create continent Map
   const continentInfoMap = {};
-
   if (countries) {
     addCountryData(countries, continentInfoMap);
   }
