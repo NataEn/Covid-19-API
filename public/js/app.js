@@ -1,4 +1,7 @@
 const SERVER_API_ROOT_URL = "http://localhost:5000";
+const COUNTRIES_ROOT_URL = "restcountries.herokuapp.com/api/v1/";
+const FLAGS_ROOT_URL = "https://www.countryflags.io/";
+const CORONA_API_ROOT_URL = "https://corona-api.com/";
 let covidData;
 
 let currentCountryDataElem;
@@ -12,15 +15,14 @@ const contentElem = document.getElementById("content");
 const chartElem = document.getElementById("chart-container");
 const continentsContainerElem = document.getElementById("continents-container");
 const covidParamsContainerElem = document.getElementById(
-  "covid-param-buttons-container"
+  "covid-params-container"
 );
 const countriesContainerElem = document.getElementById("countries-container");
 const countryDataElem = document.getElementById("country-data");
 
 function hideElements(elementsArr) {
   for (const element of elementsArr) {
-    debugger;
-    if (![...element.classList].includes("hide")) {
+    if (element.classList && ![...element.classList].includes("hide")) {
       element.classList.add("hide");
     }
   }
@@ -102,21 +104,20 @@ function updateChartData(selectedContinentsArr = null) {
 }
 
 function createPanelButtons(
-  parantElem,
+  parentElem,
   itemsArr,
   onClickfunction,
   dataAttr = null
 ) {
   for (const item of itemsArr) {
-    debugger;
     const button = createButton(item, onClickfunction, { [dataAttr]: item });
-    parantElem.appendChild(button);
+    parentElem.appendChild(button);
   }
 }
 
 function showContinentOrCountryData(event) {
   console.log("clicked", event.target);
-  debugger;
+
   const continent = event.target.dataset.continent;
   const country = event.target.dataset["country"];
   const covidParam = event.target.dataset["covidParam"];
@@ -138,7 +139,7 @@ function showContinentOrCountryData(event) {
     return;
   } else if (covidParam) {
     currentCovidParam = covidParam;
-    debugger;
+
     updateChartData([currentContinent], covidParam);
     showElements([chartElem]);
     currentCountryDataElem ? hideElements([currentCountryDataElem]) : null;
@@ -149,6 +150,7 @@ function showContinentOrCountryData(event) {
     showElements([currentCountryDataElem]);
   }
 }
+
 //creates the container div that holds all coutry buttons
 function createContinentButtonsPanel(continent) {
   const continentPanelElem = document.createElement("div");
@@ -156,12 +158,14 @@ function createContinentButtonsPanel(continent) {
   // continentPanelElem.classList.add("hide");
   return continentPanelElem;
 }
+
 function filterContinentButtonGroup(continent = null) {
   const selector = continent
     ? `div[data-continent=${continent}]`
     : `div[data-continent`;
   return document.querySelectorAll(selector);
 }
+
 //created the country buttons in the continentsButtonsPanel
 function createCountryButton(continent, country) {
   const img = createImg(covidData[continent][country].flagUrl, country);
@@ -184,6 +188,39 @@ function createCountryButtonElements() {
     }
     countriesContainerElem.appendChild(continentPanelElem);
   }
+}
+
+function getCountries() {
+  var cors_api_url = "https://cors-anywhere.herokuapp.com/";
+  function doCORSRequest(options, printResult) {
+    debugger;
+    var x = new XMLHttpRequest();
+    x.open(options.method, cors_api_url + options.url);
+    console.log(x);
+    x.onload = x.onerror = function () {
+      printResult(
+        options.method +
+          " " +
+          options.url +
+          "\n" +
+          x.status +
+          " " +
+          x.statusText +
+          "\n\n" +
+          (x.responseText || "")
+      );
+    };
+  }
+
+  doCORSRequest(
+    {
+      method: "GET",
+      url: "https://" + COUNTRIES_ROOT_URL,
+    },
+    function printResult(result) {
+      outputField.value = result;
+    }
+  );
 }
 
 const fetchGlobalInfo = () => {
@@ -266,3 +303,4 @@ function updateChartElem() {
 }
 
 fetchGlobalInfo();
+getCountries();

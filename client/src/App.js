@@ -31,7 +31,6 @@ function App() {
   useEffect(() => {
     fetchCountriesInContinent()
       .then((countries) => {
-        console.log(countries.data);
         setCountries([...countries.data]);
         // setWorldCountries([...countries.data]);
         setCountriesLoaded(true);

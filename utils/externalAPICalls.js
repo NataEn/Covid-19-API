@@ -8,15 +8,24 @@ const getCountries = (continent = null) => {
   const countries = axios
     .get(`${COUNTRIES_ROOT_URL}${fields}`)
     .then((rawlist) => {
-      // const countries = rawlist.data.map((item) => {
-      //   return {
-      //     name: item.name.common,
-      //     code: item.cca2,
-      //     flagUrl: `${FLAGS_ROOT_URL}${item.cca2}/flat/32.png`,
-      //   };
-      // });
-      // return countries;
       return rawlist.data;
+    })
+    .catch((err) => console.error(err));
+  return countries;
+};
+const getCountriesWithFlags = (continent = null) => {
+  const fields = continent ? `region/${continent}` : "";
+  const countries = axios
+    .get(`${COUNTRIES_ROOT_URL}${fields}`)
+    .then((rawlist) => {
+      const countries = rawlist.data.map((item) => {
+        return {
+          name: item.name.common,
+          code: item.cca2,
+          flagUrl: `${FLAGS_ROOT_URL}${item.cca2}/flat/32.png`,
+        };
+      });
+      return countries;
     })
     .catch((err) => console.error(err));
   return countries;
@@ -105,5 +114,6 @@ module.exports = {
   getCountriesInfo,
   getGlobalInfo,
   getCountries,
+  getCountriesWithFlags,
   collectInfo,
 };

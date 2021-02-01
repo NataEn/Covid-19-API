@@ -186,19 +186,9 @@ ellipse.right-eyeball {
   }
 }
 
-#container {
-}
 .hide {
   display: none;
 }
 .show {
   display: block;
-}
-.covidChart {
-}
-.covid-param-buttons-container {
-}
-.continent-buttons-container {
-}
-.covid-chart {
 }
